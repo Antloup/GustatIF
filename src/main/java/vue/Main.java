@@ -7,6 +7,7 @@ package vue;
 
 
 import dao.*;
+import java.util.ArrayList;
 import java.util.List;
 import metier.modele.*;
 /**
@@ -32,28 +33,15 @@ public class Main {
         else{
             System.out.println("Adresse email valide");
         }
-        
+        List<Object> objectList = new ArrayList<Object>(cdao.findAll());
+        afficherListe(objectList);
         JpaUtil.validerTransaction();
         JpaUtil.destroy();
     }
     
-    private void afficherListe(List<Object> lo) throws Exception{
-        ClientDAO cdao = new ClientDAO();
-        List<Client> listeClient = cdao.findAll();
-        for (int i = 0; i < listeClient.size(); i++) {
-            System.out.println(listeClient.get(i));
-        }
-        
-        ProduitDAO pdao = new ProduitDAO();
-        List<Produit> listeProduit = pdao.findAll();
-        for (int i = 0; i < listeProduit.size(); i++) {
-            System.out.println(listeProduit.get(i));
-        }
-
-        RestaurantDAO rdao = new RestaurantDAO();
-        List<Restaurant> listeRestaurant = rdao.findAll();
-        for (int i = 0; i < listeRestaurant.size(); i++) {
-            System.out.println(listeRestaurant.get(i));
+    private static void afficherListe(List<Object> lo){
+        for (int i = 0; i < lo.size(); i++) {
+            System.out.println(lo.get(i));
         }
     }
     
