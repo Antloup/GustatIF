@@ -33,7 +33,12 @@ public class Main {
         else{
             System.out.println("Adresse email valide");
         }
-        List<Object> objectList = new ArrayList<Object>(cdao.findAll());
+        //List<Object> objectList = new ArrayList<Object>(cdao.findAll());
+        //afficherListe(objectList);
+        
+        //Resto
+        RestaurantDAO rdao = new RestaurantDAO();
+        List<Object> objectList = new ArrayList<Object>(rdao.getProduct(12));
         afficherListe(objectList);
         JpaUtil.validerTransaction();
         JpaUtil.destroy();

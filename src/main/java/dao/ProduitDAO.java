@@ -4,6 +4,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import metier.modele.Produit;
+import metier.modele.Restaurant;
 
 public class ProduitDAO {
     
@@ -32,5 +33,6 @@ public class ProduitDAO {
         
         return produits;
     }
+   
     
 }
