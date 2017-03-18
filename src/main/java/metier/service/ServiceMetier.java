@@ -7,12 +7,17 @@ package metier.service;
 
 import dao.ClientDAO;
 import dao.CommandeDAO;
+import dao.JpaUtil;
+import dao.LivreurDAO;
 import dao.ProduitDAO;
 import dao.RestaurantDAO;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import javax.persistence.EntityManager;
 import metier.modele.Client;
 import metier.modele.Commande;
+import metier.modele.Livreur;
 import metier.modele.Produit;
 import metier.modele.Restaurant;
 
@@ -40,9 +45,15 @@ public class ServiceMetier {
      * @param r : Objet Restaurant
      * @return La commande créer
      */
-    public Commande submitMeal(HashMap<Produit,Integer> hm, Client c, Restaurant r){
+    public Commande submitCommande(HashMap<Produit,Integer> hm, Client c, Restaurant r){
         CommandeDAO cdao = new CommandeDAO();
-        return cdao.createCommande(hm,c,r);
+        JpaUtil.init();
+        JpaUtil.creerEntityManager();
+        JpaUtil.ouvrirTransaction();
+        Commande commande = cdao.createCommande(hm,c,r);
+        JpaUtil.validerTransaction();
+        JpaUtil.fermerEntityManager();
+        return commande;
     }
     
     /**
@@ -50,15 +61,17 @@ public class ServiceMetier {
      * @return null si inscription échoue, le nouveau client si inscription est un succès
      */
   public Client submitSubscription(String nom, String prenom,String mail,String adresse) throws Exception{
-      
       ClientDAO cdao = new ClientDAO();
       if(!cdao.isTaken(mail)){
-          
-          Client newclient = cdao.createClient(nom, prenom, mail, adresse);
-          return newclient;
+        JpaUtil.creerEntityManager();
+        JpaUtil.ouvrirTransaction();
+        Client newclient = cdao.createClient(nom, prenom, mail, adresse);
+        JpaUtil.validerTransaction();
+        JpaUtil.fermerEntityManager();
+        return newclient;
       }
       else{
-      return null;
+        return null;
       }
       
   }
@@ -69,11 +82,37 @@ public class ServiceMetier {
      */
     public List<Restaurant> getRestaurantsList() throws Exception{
         RestaurantDAO rdao = new RestaurantDAO();
-
         List<Restaurant> restolist = rdao.findAll();
-
         return restolist;
-
+    }
+    
+    public List<Livreur> getLivreurList() throws Exception{
+        LivreurDAO ldao = new LivreurDAO();
+        List<Livreur> livreurlist = ldao.findAll();
+        return livreurlist;
+    }
+    
+    public void confirmCommande(Commande c) throws Exception{
+        CommandeDAO cdao = new CommandeDAO();
+        JpaUtil.creerEntityManager();
+        JpaUtil.ouvrirTransaction();
+        Commande commande = cdao.findById(c.getId());
+        commande.setEtat(CommandeDAO.Etat.TERMINE.ordinal());
+        cdao.merge(commande);
+        JpaUtil.validerTransaction();
+        JpaUtil.fermerEntityManager();
+    }
+    
+//    public Set<Commande> getCommandeByLivreur(Livreur l) throws Exception{
+//        LivreurDAO ldao = new LivreurDAO();
+//        Set<Commande> commandes = ldao.findById(l.getId()).getCommandes();
+//        return commandes;
+//    }
+    
+    public List<Commande> getLivraisonsEnCours() throws Exception{
+        CommandeDAO cdao = new CommandeDAO();
+        List<Commande> lc = cdao.findByEtat(CommandeDAO.Etat.EN_COURS.ordinal());
+        return lc;
     }
     
 

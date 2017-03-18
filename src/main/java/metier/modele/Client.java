@@ -42,8 +42,8 @@ public class Client implements Serializable {
         this.prenom = prenom;
         this.mail = mail;
         this.adresse = adresse;
-        this.longitude = null;
         this.latitude = null;
+        this.longitude = null;
     }
 
     public Long getId() {

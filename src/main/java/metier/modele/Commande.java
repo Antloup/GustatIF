@@ -30,6 +30,8 @@ public class Commande implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private int etat;
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date dureeEstime;
     private HashMap<Produit,Integer> listeProduit;
     @Temporal(TemporalType.DATE)
     private Date dateCommande;
@@ -50,6 +52,7 @@ public class Commande implements Serializable {
         this.listeProduit = listeProduit;
         this.dateCommande = dateCommande;
         this.duree = duree;
+        this.duree = dureeEstime;
         this.restaurant = restaurant;
         this.livreur = livreur;
         this.client = client;

@@ -28,23 +28,33 @@ public abstract class Livreur implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @OneToMany
-    private Set<Produit> produits;
+    private Set<Commande> commandes;
+    
+    private int status; 
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+    
     public Livreur() {
     }
 
-    public Livreur(Set<Produit> produits) {
-        this.produits = produits;
+    public Livreur(Set<Commande> commandes) {
+        this.commandes = commandes;
     }
     
     
 
-    public Set<Produit> getProduits() {
-        return produits;
+    public Set<Commande> getCommandes() {
+        return commandes;
     }
 
-    public void setProduits(Set<Produit> produits) {
-        this.produits = produits;
+    public void setCommandes(Set<Commande> commandes) {
+        this.commandes = commandes;
     }
     
     

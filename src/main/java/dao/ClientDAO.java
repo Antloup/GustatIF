@@ -43,16 +43,25 @@ public class ClientDAO {
     
     public Client findByEmail(String adresse){
         EntityManager em = JpaUtil.obtenirEntityManager();
+        
         List<Client> clients = null;
         try {
-            Query q = em.createQuery("SELECT c FROM Client c WHERE c.mail = :mail");
+            JpaUtil.ouvrirTransaction();
+            //Query q = em.createQuery("SELECT c FROM Client c WHERE c.mail = :mail");
+            Query q = em.createQuery("SELECT c FROM Client c");
             q.setFirstResult(0);
             q.setMaxResults(1);
             q.setParameter("mail", adresse);
             clients = (List<Client>) q.getResultList();
+            JpaUtil.validerTransaction();
         }
         catch(Exception e) {
-            throw e;
+            if(e instanceof NullPointerException){
+                return null;
+            }
+            else{
+                throw e;
+            }
         }
         if(clients.isEmpty()){
             return null;

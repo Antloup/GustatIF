@@ -9,14 +9,16 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import metier.modele.Livreur;
 import static dao.JpaUtil.obtenirEntityManager;
+import java.util.Set;
 import javax.persistence.Query;
+import metier.modele.Commande;
 /**
  *
  * @author yanis
  */
 public class LivreurDAO {
     
-    public List<Livreur> findLivreur(int statut){
+    public List<Livreur> findByStatut(int statut){
         
         EntityManager em = obtenirEntityManager();
         List<Livreur> Livreurs = null; 
@@ -34,6 +36,32 @@ public class LivreurDAO {
         throw e;
         }        
         
+    }
+    
+    public Livreur findById(long id) throws Exception {
+        EntityManager em = JpaUtil.obtenirEntityManager();
+        Livreur livreur = null;
+        try {
+            livreur = em.find(Livreur.class, id);
+        }
+        catch(Exception e) {
+            throw e;
+        }
+        return livreur;
+    }
+    
+    public List<Livreur> findAll() throws Exception {
+        EntityManager em = JpaUtil.obtenirEntityManager();
+        List<Livreur> livreurs = null;
+        try {
+            Query q = em.createQuery("SELECT l FROM Livreur l");
+            livreurs = (List<Livreur>) q.getResultList();
+        }
+        catch(Exception e) {
+            throw e;
+        }
+        
+        return livreurs;
     }
     
 }

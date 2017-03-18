@@ -34,18 +34,4 @@ public class RestaurantDAO {
         return restaurants;
     }
     
-    public List<Produit> getProduct(int id){
-        EntityManager em = JpaUtil.obtenirEntityManager();
-        List<Produit> produits = null;
-        try {
-            Query q = em.createQuery("SELECT r.produits FROM Restaurant r where r.id=:id");
-            q.setParameter("id", id);
-            produits = (List<Produit>) q.getResultList();
-        }
-        catch(Exception e) {
-            throw e;
-        }
-        return produits;
-    }
-    
 }
