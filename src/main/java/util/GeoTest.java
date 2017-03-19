@@ -24,12 +24,12 @@ public class GeoTest {
     final static GeoApiContext MON_CONTEXTE_GEOAPI = new GeoApiContext().setApiKey(MA_CLÉ_GOOGLE_API);
 
     public static LatLng getLatLng(String adresse) {
-        try {
+        try { 
             GeocodingResult[] results = GeocodingApi.geocode(MON_CONTEXTE_GEOAPI, adresse).await();
 
             return results[0].geometry.location;
 
-        } catch (Exception ex) {
+        } catch (Exception e) {
             return null;
         }
     }

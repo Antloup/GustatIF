@@ -47,7 +47,7 @@ public class ServiceMetier {
      */
     public Commande submitCommande(HashMap<Produit,Integer> hm, Client c, Restaurant r){
         CommandeDAO cdao = new CommandeDAO();
-        JpaUtil.init();
+        JpaUtil.init(); //Commentaire de Yanis : Il ne faut pas mettre l'init ici, non ?
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
         Commande commande = cdao.createCommande(hm,c,r);
@@ -92,12 +92,41 @@ public class ServiceMetier {
         return livreurlist;
     }
     
-    public void confirmCommande(Commande c) throws Exception{
+    public Commande getCommande(long id) throws Exception{
+        CommandeDAO cdao =new CommandeDAO();
+        return cdao.findById(id); 
+    } 
+    
+    
+    public Commande confirmCommande(Commande c) throws Exception{
+        CommandeDAO cdao = new CommandeDAO();
+        JpaUtil.creerEntityManager();
+        JpaUtil.ouvrirTransaction();
+        Commande commande = cdao.findById(c.getId());
+        commande.setEtat(CommandeDAO.Etat.EN_COURS.ordinal());
+        cdao.merge(commande);
+        JpaUtil.validerTransaction();
+        JpaUtil.fermerEntityManager();
+        // Appelle d'un service pour assigner livreur ?
+        return commande;
+    }
+    
+    public void termineCommande(Commande c) throws Exception{
         CommandeDAO cdao = new CommandeDAO();
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
         Commande commande = cdao.findById(c.getId());
         commande.setEtat(CommandeDAO.Etat.TERMINE.ordinal());
+        cdao.merge(commande);
+        JpaUtil.validerTransaction();
+        JpaUtil.fermerEntityManager();
+    }
+        public void annuleCommande(Commande c) throws Exception{
+        CommandeDAO cdao = new CommandeDAO();
+        JpaUtil.creerEntityManager();
+        JpaUtil.ouvrirTransaction();
+        Commande commande = cdao.findById(c.getId());
+        commande.setEtat(CommandeDAO.Etat.ANNULE.ordinal());
         cdao.merge(commande);
         JpaUtil.validerTransaction();
         JpaUtil.fermerEntityManager();
