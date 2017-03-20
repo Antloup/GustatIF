@@ -35,7 +35,10 @@ public class ServiceMetier {
      */
     public Client connect(String adresse){
         ClientDAO cdao = new ClientDAO();
-        return cdao.findByEmail(adresse);
+        JpaUtil.creerEntityManager();
+        Client c = cdao.findByEmail(adresse);
+        JpaUtil.fermerEntityManager();
+        return c;
     }
     
     /**
@@ -47,7 +50,6 @@ public class ServiceMetier {
      */
     public Commande submitCommande(HashMap<Produit,Integer> hm, Client c, Restaurant r){
         CommandeDAO cdao = new CommandeDAO();
-        JpaUtil.init(); //Commentaire de Yanis : Il ne faut pas mettre l'init ici, non ?
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
         Commande commande = cdao.createCommande(hm,c,r);
@@ -132,16 +134,18 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
     }
     
-//    public Set<Commande> getCommandeByLivreur(Livreur l) throws Exception{
-//        LivreurDAO ldao = new LivreurDAO();
-//        Set<Commande> commandes = ldao.findById(l.getId()).getCommandes();
-//        return commandes;
-//    }
-    
     public List<Commande> getLivraisonsEnCours() throws Exception{
         CommandeDAO cdao = new CommandeDAO();
         List<Commande> lc = cdao.findByEtat(CommandeDAO.Etat.EN_COURS.ordinal());
         return lc;
+    }
+    
+    public double getPrixTot(Commande lc){
+        double prix = 0.0;
+        for (Produit key: lc.getListeProduit().keySet()) {
+            prix +=key.getPrix() * lc.getListeProduit().get(key);
+        }
+        return prix;
     }
     
 

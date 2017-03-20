@@ -103,7 +103,6 @@ public class Saisie {
                     Client c = null;
                     try {
                         sm.submitSubscription(nom, prenom, mail, adresse);
-                        //c = sm.submitSubscription("AAAAA", "AAA", "Adr@mail2.com", "Ici");
                     } catch (Exception ex) {
                         Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -127,6 +126,9 @@ public class Saisie {
                     }
                     break;
                 case 3:
+                    
+                    break;
+                case 4:
                     break;
                 default:
                     System.out.println("Wat ?");
@@ -141,6 +143,7 @@ public class Saisie {
         System.out.println("0 : Quitter");
         System.out.println("1 : S'inscrire");
         System.out.println("2 : Se connecter");
-        System.out.println("3 : ...");
+        System.out.println("3 : Voir les restaurants");
+        System.out.println("4 : ...");
     }
 }
