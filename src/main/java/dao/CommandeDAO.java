@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import metier.modele.Client;
 import metier.modele.Commande;
+import metier.modele.Livreur;
 import metier.modele.Produit;
 import metier.modele.Restaurant;
 
@@ -35,12 +36,12 @@ public class CommandeDAO {
      * @param r : Objet Restaurant
      * @return La commande créer
      */
-    public Commande createCommande(HashMap<Produit,Integer> hm,Client c,Restaurant r) {
+    public Commande createCommande(HashMap<Produit,Integer> hm,Client c,Restaurant r,Livreur l,double duree) {
         Date today = new Date();
         EntityManager em = JpaUtil.obtenirEntityManager();
         // Pour la durée : voir API Google MAP
         // Pour le livreur : voir DAO livreur
-        Commande commande = new Commande(Etat.EN_ATTENTE.ordinal(), hm, today, null, r, null, c);
+        Commande commande = new Commande(Etat.EN_ATTENTE.ordinal(), hm, today, duree, r, l, c);
         em.persist(commande);
         return commande;
     }
@@ -74,14 +75,19 @@ public class CommandeDAO {
         return commandes;
     }
     
-    public void persist(Commande c){
+    public void setEtat(Commande c, Etat etat) throws Exception{
         EntityManager em = JpaUtil.obtenirEntityManager();
-        em.persist(c);
+        c.setEtat(etat.ordinal());
+        em.merge(c);
+     
+    
     }
     
-    public void merge(Commande c){
+    public void setDateReception(Commande c, Date d) throws Exception{
         EntityManager em = JpaUtil.obtenirEntityManager();
+        c.setDateReception(d);
         em.merge(c);
+    
     }
     
 }

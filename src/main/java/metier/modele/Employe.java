@@ -26,7 +26,8 @@ public class Employe extends Livreur implements Serializable {
     public Employe() {
     }
 
-    public Employe(String nom, String prenom,String email) {
+    public Employe(String nom, String prenom,String email,String adresse,double max_transport) {
+        super(null, adresse, max_transport, 0);
         this.nom = nom;
         this.prenom = prenom;
         this.email = email;

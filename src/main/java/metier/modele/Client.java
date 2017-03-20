@@ -1,5 +1,6 @@
 package metier.modele;
 
+import com.google.maps.model.LatLng;
 import java.io.Serializable;
 import java.util.Set;
 import javax.persistence.Column;
@@ -8,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 @Entity
 public class Client implements Serializable {
@@ -37,13 +39,13 @@ public class Client implements Serializable {
     protected Client() {
     }
     
-    public Client(String nom, String prenom, String mail, String adresse) {
+    public Client(String nom, String prenom, String mail, String adresse,LatLng latlng) {
         this.nom = nom;
         this.prenom = prenom;
         this.mail = mail;
         this.adresse = adresse;
-        this.latitude = null;
-        this.longitude = null;
+        this.latitude = latlng.lat;
+        this.longitude = latlng.lng;
     }
 
     public Long getId() {

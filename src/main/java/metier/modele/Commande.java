@@ -30,13 +30,12 @@ public class Commande implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private int etat;
-    @Temporal(javax.persistence.TemporalType.DATE)
-    private Date dureeEstime;
+    private double duree;
     private HashMap<Produit,Integer> listeProduit;
     @Temporal(TemporalType.DATE)
     private Date dateCommande;
     @Temporal(TemporalType.DATE)
-    private Date duree;
+    private Date dateReception;
     @ManyToOne
     private Restaurant restaurant;
     @ManyToOne
@@ -47,19 +46,20 @@ public class Commande implements Serializable {
     public Commande() {
     }
 
-    public Commande(int etat, HashMap<Produit, Integer> listeProduit, Date dateCommande, Date duree, Restaurant restaurant, Livreur livreur, Client client) {
+    public Commande(int etat, HashMap<Produit, Integer> listeProduit, Date dateCommande, Double duree, Restaurant restaurant, Livreur livreur, Client client) {
         this.etat = etat;
         this.listeProduit = listeProduit;
         this.dateCommande = dateCommande;
+        this.dateReception = null;
         this.duree = duree;
-        this.duree = dureeEstime;
         this.restaurant = restaurant;
         this.livreur = livreur;
         this.client = client;
     }
-    
-    
-    
+
+    public void setDateReception(Date dateReception) {
+        this.dateReception = dateReception;
+    }
 
     /**
      * Get the value of dateCommande
@@ -104,7 +104,7 @@ public class Commande implements Serializable {
      * @return the value of duree
      */
     public Date getDuree() {
-        return duree;
+        return dateReception;
     }
 
     /**
@@ -113,7 +113,7 @@ public class Commande implements Serializable {
      * @param duree new value of duree
      */
     public void setDuree(Date duree) {
-        this.duree = duree;
+        this.dateReception = duree;
     }
 
     /**

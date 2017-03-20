@@ -1,5 +1,6 @@
 package dao;
 
+import com.google.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -67,8 +68,8 @@ public class ClientDAO {
         return client;
     }
     
-    public Client createClient(String nom, String prenom,String mail,String adresse){
-        Client c = new Client(nom,prenom,mail,adresse);
+    public Client createClient(String nom, String prenom,String mail,String adresse,LatLng latlng){
+        Client c = new Client(nom,prenom,mail,adresse,latlng);
         EntityManager em = JpaUtil.obtenirEntityManager();
         em.persist(c);
         return c;
