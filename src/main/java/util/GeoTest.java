@@ -19,14 +19,14 @@ import java.util.logging.Logger;
  */
 public class GeoTest {
 
-    final static String MA_CLÉ_GOOGLE_API = "AIzaSyAhf3JleYpal9S-xouJYH8lf7Dvz5Y2Nko";
+    //final static String MA_CLÉ_GOOGLE_API = "AIzaSyAhf3JleYpal9S-xouJYH8lf7Dvz5Y2Nko";
+    final static String MA_CLÉ_GOOGLE_API = "AIzaSyBMGNNT7SpABl_ZdEwqb9dKUupKWIG1I9U";
 
     final static GeoApiContext MON_CONTEXTE_GEOAPI = new GeoApiContext().setApiKey(MA_CLÉ_GOOGLE_API);
 
     public static LatLng getLatLng(String adresse) {
         try { 
             GeocodingResult[] results = GeocodingApi.geocode(MON_CONTEXTE_GEOAPI, adresse).await();
-
             return results[0].geometry.location;
 
         } catch (Exception e) {

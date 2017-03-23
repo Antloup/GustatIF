@@ -49,8 +49,6 @@ public class ClientDAO {
         Client client = null;
         try {
             Query q = em.createQuery("SELECT c FROM Client c WHERE c.mail = :mail");
-            //q.setFirstResult(0);
-            //q.setMaxResults(1);
             q.setParameter("mail", adresse);
             client = (Client) q.getSingleResult();
         }

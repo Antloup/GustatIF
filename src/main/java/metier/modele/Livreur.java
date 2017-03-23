@@ -7,6 +7,8 @@ package metier.modele;
 
 import com.google.maps.model.LatLng;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,9 +25,9 @@ import util.GeoTest;
  * @author Anthony
  */
 @Entity
-@Inheritance (strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Livreur implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -54,6 +56,42 @@ public abstract class Livreur implements Serializable {
         this.max_transport = max_transport;
     }
 
+    /**
+     *
+     * @return Poids totale qu'un livreur transporte
+     */
+    public double getPoids() {
+        double poids = 0.0;
+        if (this.commandes != null) {
+            Iterator<Commande> iter = this.commandes.iterator();
+            while (iter.hasNext()) {
+                HashMap<Produit, Integer> hm = iter.next().getListeProduit();
+                for (Produit key : hm.keySet()) {
+                    poids += key.getPoids() * hm.get(key);
+                }
+            }
+        }
+
+        return poids;
+    }
+
+    /**
+     *
+     * @return Duree totale des livraisons du livreurs
+     */
+    /*
+    public double getDuree() {
+        double duree = 0.0;
+        if (this.commandes != null) {
+            Iterator<Commande> iter = this.commandes.iterator();
+            while (iter.hasNext()) {
+                duree += iter.next().getDuree();
+            }
+        }
+        return duree;
+    }
+    */
+
     public String getAdresse() {
         return adresse;
     }
@@ -72,19 +110,16 @@ public abstract class Livreur implements Serializable {
     public Double getLatitude() {
         return latitude;
     }
-    
-    
+
     public Livreur() {
     }
 
-    public Livreur(Set<Commande> commandes,String adresse,double max_transport, int status) {
+    public Livreur(Set<Commande> commandes, String adresse, double max_transport, int status) {
         this.commandes = commandes;
         this.status = status;
         this.max_transport = max_transport;
         setAdresse(adresse);
     }
-    
-    
 
     public Set<Commande> getCommandes() {
         return commandes;
@@ -93,8 +128,6 @@ public abstract class Livreur implements Serializable {
     public void setCommandes(Set<Commande> commandes) {
         this.commandes = commandes;
     }
-    
-    
 
     public Long getId() {
         return id;
@@ -128,5 +161,5 @@ public abstract class Livreur implements Serializable {
     public String toString() {
         return "metier.modele.Livreur[ id=" + id + " ]";
     }
-    
+
 }

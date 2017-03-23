@@ -1,16 +1,21 @@
 package util;
 
+import dao.CommandeDAO;
 import dao.JpaUtil;
+import dao.LivreurDAO;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import metier.modele.Client;
 import metier.modele.Commande;
+import metier.modele.Livreur;
 import metier.modele.Produit;
 import metier.modele.Restaurant;
 import metier.service.ServiceMetier;
@@ -62,44 +67,31 @@ public class Saisie {
         }
         return valeurLue;
     }
-    
-   
-    
+
     public static void pause() {
         lireChaine("--PAUSE--");
     }
 
-//    public static void main(String[] args) {
-//        
-//        System.out.println("Bonjour !");
-//        
-//        String nom = Saisie.lireChaine("Entrez votre nom: ");
-//        System.out.println("Bonjour, " + nom + " !");
-//        
-//        Integer age = Saisie.lireInteger("Entrez votre âge: ");
-//        System.out.println("Vous avez " + age + " ans.");
-//        
-//        Integer annee = Saisie.lireInteger("Entrez votre année au Département IF (3,4,5): ", Arrays.asList(3,4,5));
-//        System.out.println("Vous êtes en " + annee + "IF.");
-//
-//        Saisie.pause();
-//        
-//        System.out.println("Au revoir !");
-//    }
-    
-    
     public static void main(String[] args) {
         JpaUtil.init();
-        
+
         System.out.println("GustatIF textuel !");
         Integer action = -1;
         ServiceMetier sm = new ServiceMetier();
+        try {
+            if(sm.getLivreurList().size() == 0){
+                sm.init();
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         Client client = null;
-        
-        while(action != 0){
-            afficherMenu(client);
-            action = Saisie.lireInteger("Votre choix : ",Arrays.asList(0,1,2,3,4,5));
-            switch(action){
+
+        while (action != 0) {
+            afficherMenuConnexion();
+            action = Saisie.lireInteger("Votre choix : ", Arrays.asList(0, 1, 2, 3, 4));
+            switch (action) {
                 case 0:
                     System.out.println("Au revoir !");
                     break;
@@ -110,95 +102,245 @@ public class Saisie {
                     String adresse = Saisie.lireChaine("Adresse : ");
                     Client c = null;
                     try {
-                        sm.submitSubscription(nom, prenom, mail, adresse);
+                        c = sm.submitSubscription(nom, prenom, mail, adresse);
                     } catch (Exception ex) {
                         Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    if(c != null){
+                    if (c != null) {
                         System.out.println("Vous etes inscrit ! Objet Client créer :");
                         System.out.println(c.toString());
-                    }
-                    else{
-                        System.out.println("Email déja utilisée !");
+                    } else {
+                        System.out.println("Erreur lors de l'inscription : Email déja utilisée ou Adresse inconnu");
                     }
                     break;
-                case 2: // Se connecter
+                case 2: // Se connecter client
                     String identifiant = Saisie.lireChaine("Adresse : ");
-                    client = sm.connect(identifiant);
-                    if(client == null){
+                    client = sm.connectClient(identifiant);
+                    if (client == null) {
                         System.out.println("Adresse invalide");
-                    }
-                    else{
+                    } else {
                         System.out.println("Connecte en tant que :");
                         System.out.println(client.toString());
+                        menuCommande(client);
                     }
                     break;
-                case 3: // List restaurants
-                    try {
-                        
-                        List<Restaurant> lr = sm.getRestaurantsList();
-                        for(int i=0;i<lr.size();i++){
-                            System.out.println("Restaurant id:"+lr.get(i).getId());
-                            System.out.println("Nom:"+lr.get(i).getDenomination());
-                            System.out.println("Adresse :"+lr.get(i).getAdresse());
-                            System.out.println("Description:"+lr.get(i).getDescription());
-                            System.out.println("----------");
-                        }
-                    } catch (Exception ex) {
-                        Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
+                case 3: // Se connecter livreur
+                    String mail_livreur = Saisie.lireChaine("Adresse : ");
+                    Livreur livreur = sm.connectLivreur(mail_livreur);
+                    if (livreur == null) {
+                        System.out.println("Adresse invalide");
+                    } else {
+                        System.out.println("Connecte en tant que :");
+                        System.out.println(livreur.toString());
+                        menuLivreur(livreur);
                     }
-                    
                     break;
                 case 4:
-                    int restoID = Saisie.lireInteger("ID du resto : ");
-                    Restaurant r = null;
-                    List<Produit> lp = null;
-                    HashMap<Produit,Integer> hm = new HashMap<Produit,Integer>();
+                    menuGestionnaire();
+                    break;
+                case 8:
                     try {
-                        r = sm.getRestaurant(restoID);
-                        lp = r.getProduits();
-                        
-                        for(int i=0;i<lp.size();i++){
-                            System.out.println("Produit ID:"+lp.get(i).getId());
-                            System.out.println("Nom:"+lp.get(i).getDenomination());
-                            System.out.println("Description:"+lp.get(i).getDescription());
-                            System.out.println("Poids :"+lp.get(i).getPoids());
-                            System.out.println("Prix :"+lp.get(i).getPrix());
-                            int qte = Saisie.lireInteger("Quantité:");
-                            if(qte > 0){
-                                hm.put(lp.get(i), qte);
+                        List<Commande> lc = sm.getLivraisonsEnCours();
+                        if (lc != null) {
+                            System.out.println("Commande en cours :");
+                            for (int i = 0; i < lc.size(); i++) {
+                                System.out.println(lc.get(i));
                             }
-                            System.out.println("----------");
                         }
                         
-                        sm.submitCommande(hm, client, r);
                     } catch (Exception ex) {
                         Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                     }
+
                     break;
-                case 5:
-                    
+/*
+                case 9:
+                    int c_id = Saisie.lireInteger("ID de la commande a terminer :");
+
+                    try {
+                        Commande commande = sm.getCommande(c_id);
+                        sm.termineCommande(commande);
+                        
+                    } catch (Exception ex) {
+                        Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
                     break;
+*/
                 default:
                     System.out.println("Wat ?");
             }
         }
-        
+
         JpaUtil.destroy();
     }
-    
-    public static void afficherMenu(Client c){
-        
-        System.out.println("--- MENU ---");
-        if(c==null){
-            System.out.println("1 : S'inscrire");
-            System.out.println("2 : Se connecter");
-        }
-        else{
-            System.out.println("3 : Voir les restaurants");
-            System.out.println("4 : Commander : (Voir produits restaurant par ID)");
-            System.out.println("5 : ...");
-        }
+
+    public static void afficherMenuConnexion() {
+        System.out.println("--- MENU CONNEXION ---");
+        System.out.println("1 : S'inscrire");
+        System.out.println("2 : Se connecter en tant que client");
+        System.out.println("3 : Se connecter en tant que livreur");
+        System.out.println("4 : Se connecter en tant que gestionnaire");
         System.out.println("0 : Quitter");
     }
+    
+    public static void afficherMenuCommande(){
+        System.out.println("--- MENU COMMANDE ---");
+        System.out.println("1 : Voir les restaurants");
+        System.out.println("2 : Commander : (Voir produits restaurant par ID)");
+        System.out.println("0 : Quitter");
+    }
+    
+   public static void menuCommande(Client client){
+        ServiceMetier sm = new ServiceMetier();
+        Integer action = -1;
+        while (action != 0) {
+            afficherMenuCommande();
+            action = Saisie.lireInteger("Votre choix : ", Arrays.asList(0, 1, 2));
+            switch(action){
+                case 1:
+                    try {
+
+                        List<Restaurant> lr = sm.getRestaurantsList();
+                        for (int i = 0; i < lr.size(); i++) {
+                            System.out.println("Restaurant id:" + lr.get(i).getId());
+                            System.out.println("Nom:" + lr.get(i).getDenomination());
+                            System.out.println("Adresse :" + lr.get(i).getAdresse());
+                            System.out.println("Description:" + lr.get(i).getDescription());
+                            System.out.println("----------");
+                        }
+                    } catch (Exception ex) {
+                        Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    break;
+                    
+                case 2:
+                    int restoID = Saisie.lireInteger("ID du resto : ");
+                    Restaurant r = null;
+                    List<Produit> lp = null;
+                    HashMap<Produit, Integer> hm = new HashMap<Produit, Integer>();
+                    try {
+                        r = sm.getRestaurant(restoID);
+                        lp = r.getProduits();
+
+                        for (int i = 0; i < lp.size(); i++) {
+                            System.out.println("Produit ID:" + lp.get(i).getId());
+                            System.out.println("Nom:" + lp.get(i).getDenomination());
+                            System.out.println("Description:" + lp.get(i).getDescription());
+                            System.out.println("Poids :" + lp.get(i).getPoids());
+                            System.out.println("Prix :" + lp.get(i).getPrix());
+                            int qte = Saisie.lireInteger("Quantité:");
+                            if (qte > 0) {
+                                hm.put(lp.get(i), qte);
+                            }
+                            System.out.println("----------");
+                        }
+
+                        Commande commande = sm.submitCommande(hm, client, r);
+                        if (commande != null) {
+                            System.out.println("Commande accepté");
+                            int confirm = Saisie.lireInteger("1 : Confirmer 2: Annuler :");
+                            if(confirm == 1){
+                                sm.confirmCommande(commande);
+                            }
+                            else{
+                                sm.annuleCommande(commande);
+                            }
+                        } else {
+                            System.out.println("Erreur dans l'insertion de la commande");
+                        }
+
+                    } catch (Exception ex) {
+                        Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    break;
+                
+                case 0:
+                   break;
+            }
+           
+        }
+   }
+   
+   public static void afficherMenuLivreur(){
+       System.out.println("--- MENU LIVREUR ---");
+       System.out.println("1 : Voir la commande en cours");
+       System.out.println("2 : Valider la commande en cours");
+       System.out.println("0 : Quitter");
+   }
+   public static void menuLivreur(Livreur livreur){
+        ServiceMetier sm = new ServiceMetier();
+        Integer action = -1;
+        while (action != 0) {
+            afficherMenuLivreur();
+            action = Saisie.lireInteger("Votre choix : ", Arrays.asList(0, 1, 2));
+            
+            switch(action){
+                case 1:
+                {
+                    Set<Commande> lc = livreur.getCommandes();
+                    Iterator<Commande> iter = lc.iterator();
+                    while (iter.hasNext()) {
+                        if(iter.next().getEtat() == CommandeDAO.Etat.EN_COURS.ordinal()){
+                            System.out.println(iter.next());
+                        }
+                    }
+                    break;
+                }
+                case 2:
+                {
+                    Set<Commande> lc = livreur.getCommandes();
+                    Iterator<Commande> iter = lc.iterator();
+                    while (iter.hasNext()) {
+                        if(iter.next().getEtat() == CommandeDAO.Etat.EN_COURS.ordinal()){
+                            try {
+                                sm.termineCommande(iter.next());
+                            } catch (Exception ex) {
+                                Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 0:
+                    break;
+            }
+        }
+       
+   }
+   
+   public static void afficherMenuGestionnaire(){
+       System.out.println("--- MENU GESTIONNAIRE ---");
+       System.out.println("1 : Voir la liste des livreurs + leurs commandes");
+       System.out.println("2 : Coordonnees des clients,livreurs,restaurant");
+       System.out.println("3 : Voir commande drone");
+       System.out.println("4 : Valider commande drone");
+       System.out.println("0 : Quitter");
+   }
+   
+   public static void menuGestionnaire(){
+       ServiceMetier sm = new ServiceMetier();
+        Integer action = -1;
+        while (action != 0) {
+            afficherMenuGestionnaire();
+            action = Saisie.lireInteger("Votre choix : ", Arrays.asList(0, 1, 2,3));
+            
+            switch(action){
+                case 1:
+                    //TODO
+                    break;
+                case 2:
+                    //TODO
+                    break;
+                case 3:
+                    //TODO
+                    break;
+                case 4:
+                    //TODO
+                    break;
+                case 0:
+                    break;
+            }
+        }
+   }
 }

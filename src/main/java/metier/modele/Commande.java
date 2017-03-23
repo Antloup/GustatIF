@@ -103,8 +103,8 @@ public class Commande implements Serializable {
      *
      * @return the value of duree
      */
-    public Date getDuree() {
-        return dateReception;
+    public double getDuree() {
+        return duree;
     }
 
     /**
@@ -112,8 +112,8 @@ public class Commande implements Serializable {
      *
      * @param duree new value of duree
      */
-    public void setDuree(Date duree) {
-        this.dateReception = duree;
+    public void setDuree(double duree) {
+        this.duree = duree;
     }
 
     /**

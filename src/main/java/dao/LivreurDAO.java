@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import metier.modele.Livreur;
 import static dao.JpaUtil.obtenirEntityManager;
 import java.util.Set;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import metier.modele.Commande;
 import metier.modele.Drone;
@@ -63,6 +64,29 @@ public class LivreurDAO {
 
         return livreurs;
     }
+    
+    public Livreur findByEmail(String adresse){
+        EntityManager em = JpaUtil.obtenirEntityManager();
+        
+        Employe employe = null;
+        try {
+            Query q = em.createQuery("SELECT e FROM Employe e WHERE e.email = :mail");
+            q.setParameter("mail", adresse);
+            employe = (Employe) q.getSingleResult();
+        }
+        catch(Exception e) {
+            if(e instanceof NullPointerException){
+                return null;
+            }
+            else if(e instanceof NoResultException){
+                return null;
+            }
+            else{
+                throw e;
+            }
+        }
+        return employe;
+    }
 
     public void setStatus(Livreur l, int status) throws Exception {
         EntityManager em = JpaUtil.obtenirEntityManager();
@@ -79,6 +103,19 @@ public class LivreurDAO {
     public void createDrone(Drone d) {
         EntityManager em = JpaUtil.obtenirEntityManager();
         em.persist(d);
+    }
+    
+    public void addCommande(Commande c, Livreur l){
+        EntityManager em = JpaUtil.obtenirEntityManager();
+        l.getCommandes().add(c);
+        em.merge(l);
+    }
+
+    public void removeCommande(Commande commande) {
+        EntityManager em = JpaUtil.obtenirEntityManager();
+        Livreur l = commande.getLivreur();
+        l.getCommandes().remove(commande);
+        em.merge(l);
     }
 
 }

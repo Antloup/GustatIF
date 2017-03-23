@@ -39,9 +39,7 @@ public class CommandeDAO {
     public Commande createCommande(HashMap<Produit,Integer> hm,Client c,Restaurant r,Livreur l,double duree) {
         Date today = new Date();
         EntityManager em = JpaUtil.obtenirEntityManager();
-        // Pour la durée : voir API Google MAP
-        // Pour le livreur : voir DAO livreur
-        Commande commande = new Commande(Etat.EN_ATTENTE.ordinal(), hm, today, duree, r, l, c);
+        Commande commande = new Commande(Etat.EN_COURS.ordinal(), hm, today, duree, r, l, c);
         em.persist(commande);
         return commande;
     }
