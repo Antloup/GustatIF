@@ -77,4 +77,17 @@ public class ServiceTechnique {
         return email;
         
     }
+    public static String sendConfirmInscription(Client c, boolean error){
+        String email="";
+        email = "Mail adressé à "+c.getMail()+" par Service@Gustatif.fr \n";
+        if(error==false){
+            email += "Bienvenue sur Gustatif votre numéro client est "+c.getId();
+        }
+        else{
+            email +="Votre inscription à échouez veuillez réessayer";
+        
+        }
+    
+    return email;
+    }
 }

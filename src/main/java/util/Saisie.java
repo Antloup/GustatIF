@@ -24,6 +24,7 @@ import metier.modele.Produit;
 import metier.modele.Restaurant;
 import metier.service.ServiceMetier;
 import metier.service.ServiceTechnique;
+import static metier.service.ServiceTechnique.sendConfirmInscription;
 
 /**
  *
@@ -114,8 +115,11 @@ public class Saisie {
                     if (c != null) {
                         System.out.println("Vous etes inscrit ! Objet Client créer :");
                         System.out.println(c.toString());
+                        System.out.println(sendConfirmInscription(c,false));
                     } else {
                         System.out.println("Erreur lors de l'inscription : Email déja utilisée ou Adresse inconnu");
+                        System.out.println(sendConfirmInscription(c,true));
+
                     }
                     break;
                 case 2: // Se connecter client
@@ -257,8 +261,14 @@ public class Saisie {
                             int confirm = Saisie.lireInteger("1 : Confirmer 2: Annuler :");
                             if(confirm == 1){
                                 sm.confirmCommande(commande);
+                                
+                                if(commande.getLivreur() instanceof Employe ){
                                 System.out.println("Email recu par le livreur :");
                                 System.out.println(ServiceTechnique.sendEmail(commande.getLivreur()));
+                                System.out.println(" Un livreur est en route ");}
+                                else{
+                                   System.out.println(" Un drone est en route pour votre commande");
+                                }
                             }
                             else{
                                 sm.annuleCommande(commande);

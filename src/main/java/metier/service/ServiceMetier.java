@@ -78,7 +78,7 @@ public class ServiceMetier {
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
         LivreurDAO ldao = new LivreurDAO();
-        commande = cdao.createCommande(hm, c, r, selectLivreur, duree_min);
+        commande = cdao.createCommande(hm, c, r, selectLivreur, 6);
         ldao.addCommande(commande, selectLivreur);
         if(selectLivreur == null){
             cdao.setEtat(commande, CommandeDAO.Etat.ANNULE);
@@ -332,6 +332,18 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
         return d;
     }
+    
+//    private Restaurant createResto( String denomination ,String description, String adresse){
+//       JpaUtil.creerEntityManager();
+//        JpaUtil.ouvrirTransaction();
+//        Restaurant r = new Restaurant(String denomination, String description, String adresse);
+//        RestaurantDAO rdao = new RestaurantDAO();
+//        Restaurant.createRestaurant(r);
+//        JpaUtil.validerTransaction();
+//        JpaUtil.fermerEntityManager();
+//    
+//    
+//    }
 
     /**
      * Initialise les données des livreurs
