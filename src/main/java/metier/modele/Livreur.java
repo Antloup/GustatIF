@@ -6,6 +6,7 @@
 package metier.modele;
 
 import com.google.maps.model.LatLng;
+import dao.CommandeDAO;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,25 +55,6 @@ public abstract class Livreur implements Serializable {
 
     public void setMax_transport(double max_transport) {
         this.max_transport = max_transport;
-    }
-
-    /**
-     *
-     * @return Poids totale qu'un livreur transporte
-     */
-    public double getPoids() {
-        double poids = 0.0;
-        if (this.commandes != null) {
-            Iterator<Commande> iter = this.commandes.iterator();
-            while (iter.hasNext()) {
-                HashMap<Produit, Integer> hm = iter.next().getListeProduit();
-                for (Produit key : hm.keySet()) {
-                    poids += key.getPoids() * hm.get(key);
-                }
-            }
-        }
-
-        return poids;
     }
 
     /**
@@ -127,6 +109,17 @@ public abstract class Livreur implements Serializable {
 
     public void setCommandes(Set<Commande> commandes) {
         this.commandes = commandes;
+    }
+    
+    public Commande getCommandeEnCours(){
+        Iterator<Commande> iter = this.commandes.iterator();
+        while (iter.hasNext()) {
+            Commande c = iter.next();
+            if(c.getEtat() == CommandeDAO.Etat.EN_COURS.ordinal()){
+                return c;
+            }
+        }
+        return null;
     }
 
     public Long getId() {

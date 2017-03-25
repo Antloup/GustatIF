@@ -51,7 +51,7 @@ public class ServiceMetier {
      *
      * @param adresse : Adresse Email du livreur
      * @return Si l'email n'existe pas dans la base : return null Sinon : return
-     * l'objet Client
+     * l'objet Livreur
      */
     public Livreur connectLivreur(String adresse) {
         LivreurDAO ldao = new LivreurDAO();
@@ -64,43 +64,22 @@ public class ServiceMetier {
     /**
      * Créer la commande du client
      *
-     * @param hm : HashMap Objet Produit / quantité de produit
+     * @param hm : HashMap : Produit / quantité de produit
      * @param c : Objet Client
      * @param r : Objet Restaurant
      * @return La commande créer
      */
     public Commande submitCommande(HashMap<Produit, Integer> hm, Client c, Restaurant r) throws Exception {
-        List<Livreur> ll = getAvailableLivreur();
-        LatLng d_latlng = new LatLng(c.getLatitude(), c.getLongitude());
-        double duree_min = Double.MAX_VALUE;
-        Livreur selectLivreur = null;
         double poids = getPoids(hm);
-        for (int i = 0; i < ll.size(); i++) {
-            if (ll.get(i).getMax_transport() >= poids && ll.get(i).getStatus() == 0) { // Poids OK + Disponible
-                LatLng s_latlng = new LatLng(ll.get(i).getLatitude(), ll.get(i).getLongitude());
-                double duree = -1;
-                if (ll.get(i) instanceof Employe) {
-                    LatLng r_latlng = new LatLng(r.getLatitude(),r.getLongitude());
-                    duree = GeoTest.getTripDurationByBicycleInMinute(s_latlng, r_latlng);
-                    duree += GeoTest.getTripDurationByBicycleInMinute(r_latlng, d_latlng);
-                } else if (ll.get(i) instanceof Drone) {
-                    Drone d = (Drone) ll.get(i);
-                    duree = (GeoTest.getFlightDistanceInKm(s_latlng, d_latlng) / d.getVitesse()) * 60;
-                }
-                if (duree != -1 && duree < duree_min) {
-                    duree_min = duree;
-                    selectLivreur = ll.get(i);
-                }
-            }
-        }
+        double duree_min = Double.MAX_VALUE;
+        Livreur selectLivreur = ServiceTechnique.selectionnerLivreur(c, r, poids, duree_min);
         Commande commande = null;
         CommandeDAO cdao = new CommandeDAO();
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
         LivreurDAO ldao = new LivreurDAO();
-        ldao.addCommande(commande, selectLivreur); // A tester
         commande = cdao.createCommande(hm, c, r, selectLivreur, duree_min);
-        
+        ldao.addCommande(commande, selectLivreur);
         if(selectLivreur == null){
             cdao.setEtat(commande, CommandeDAO.Etat.ANNULE);
         }
@@ -113,6 +92,11 @@ public class ServiceMetier {
 
     }
 
+    /**
+     * 
+     * @param hm : HashMap< Produit,Integer > : Produits de la commande et leurs quantités
+     * @return Poids total de la commande
+     */
     public double getPoids(HashMap<Produit, Integer> hm) {
         double poids = 0.0;
         for (Produit key : hm.keySet()) {
@@ -160,6 +144,11 @@ public class ServiceMetier {
         return restolist;
     }
 
+    /**
+     * 
+     * @return liste des livreurs
+     * @throws Exception si operation echoue
+     */
     public List<Livreur> getLivreurList() throws Exception {
         LivreurDAO ldao = new LivreurDAO();
         JpaUtil.creerEntityManager();
@@ -167,8 +156,53 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
         return livreurlist;
     }
+    
+    /**
+     * 
+     * @return liste des clients
+     * @throws Exception si operation echoue
+     */
+    public List<Client> getClientsList() throws Exception {
+        ClientDAO cdao = new ClientDAO();
+        JpaUtil.creerEntityManager();
+        List<Client> clientlist = cdao.findAll();
+        JpaUtil.fermerEntityManager();
+        return clientlist;
+    }
+    
+    /**
+     * 
+     * @param id : Id du livreur a récupérer
+     * @return : Objet Livreur (null si aucun livreur trouvé)
+     * @throws Exception si operation echoue
+     */
+    public Livreur getLivreurById(Long id) throws Exception {
+        LivreurDAO ldao = new LivreurDAO();
+        JpaUtil.creerEntityManager();
+        Livreur livreur = ldao.findById(id);
+        JpaUtil.fermerEntityManager();
+        return livreur;
+    }
+    
+    /**
+     * 
+     * @param id : Id du client a récupérer
+     * @return : Objet Client (null si aucun client trouvé)
+     * @throws Exception si operation echoue
+     */
+    public Client getClientById(Long id) throws Exception {
+        ClientDAO cdao = new ClientDAO();
+        JpaUtil.creerEntityManager();
+        Client client = cdao.findById(id);
+        JpaUtil.fermerEntityManager();
+        return client;
+    }
 
-    public List<Livreur> getAvailableLivreur() {
+    /**
+     * 
+     * @return Liste des livreurs disponible
+     */
+    public static List<Livreur> getAvailableLivreur() {
         LivreurDAO ldao = new LivreurDAO();
         JpaUtil.creerEntityManager();
         List<Livreur> livreurlist = ldao.findByStatut(0); // Livreur libre
@@ -176,6 +210,12 @@ public class ServiceMetier {
         return livreurlist;
     }
 
+    /**
+     * 
+     * @param id : Id de la commande a récupérer
+     * @return : Objet Commande (null si aucune commande trouvé)
+     * @throws Exception si operation echoue
+     */
     public Commande getCommande(long id) throws Exception {
         JpaUtil.creerEntityManager();
         CommandeDAO cdao = new CommandeDAO();
@@ -184,6 +224,12 @@ public class ServiceMetier {
         return c;
     }
 
+    /**
+     * 
+     * @param id : Id du restaurant a récupérer
+     * @return : Objet Restaurant (null si aucun resturant trouvé)
+     * @throws Exception si operation echoue
+     */
     public Restaurant getRestaurant(long id) throws Exception {
         JpaUtil.creerEntityManager();
         RestaurantDAO rdao = new RestaurantDAO();
@@ -192,6 +238,12 @@ public class ServiceMetier {
         return r;
     }
 
+    /**
+     * 
+     * @param c : commande a confirmer : le livreur sera affecter a cette commande
+     * @return la commande confirmé
+     * @throws Exception si operation echoue
+     */
     public Commande confirmCommande(Commande c) throws Exception {
         CommandeDAO cdao = new CommandeDAO();
         JpaUtil.creerEntityManager();
@@ -205,6 +257,11 @@ public class ServiceMetier {
         return commande;
     }
 
+    /**
+     * 
+     * @param c : Commande a terminer
+     * @throws Exception si operation echoue
+     */
     public void termineCommande(Commande c) throws Exception {
         CommandeDAO cdao = new CommandeDAO();
         JpaUtil.creerEntityManager();
@@ -219,6 +276,11 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
     }
 
+    /**
+     * 
+     * @param c : Commande a annuler
+     * @throws Exception si operation echoue
+     */
     public void annuleCommande(Commande c) throws Exception {
         CommandeDAO cdao = new CommandeDAO();
         JpaUtil.creerEntityManager();
@@ -236,7 +298,12 @@ public class ServiceMetier {
         return lc;
     }
 
-    public double getPrixTot(Commande lc) {
+    /**
+     * 
+     * @param lc : commande
+     * @return le prix total de la commande
+     */
+    public static double getPrixTot(Commande lc) {
         double prix = 0.0;
         for (Produit key : lc.getListeProduit().keySet()) {
             prix += key.getPrix() * lc.getListeProduit().get(key);
@@ -266,6 +333,9 @@ public class ServiceMetier {
         return d;
     }
 
+    /**
+     * Initialise les données des livreurs
+     */
     public void init() {
         List<String> places = Arrays.asList("Lyon Boxe, 215 Rue Paul Bert, 69003 Lyon", "325 Rue Paul Bert, 69003 Lyon",
                 "11 Rue Lafontaine 69100 Villeurbanne ", "30 Rue de la Cité 69003 Villeurbanne",

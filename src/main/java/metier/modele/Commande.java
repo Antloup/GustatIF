@@ -8,6 +8,7 @@ package metier.modele;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -197,6 +198,19 @@ public class Commande implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+    
+    /**
+     *
+     * @return Poids totale d'une commande
+     */
+    public double getPoids() {
+        double poids = 0.0;
+        HashMap<Produit, Integer> hm = this.getListeProduit();
+        for (Produit key : hm.keySet()) {
+            poids += key.getPoids() * hm.get(key);
+        }
+        return poids;
     }
 
     @Override
