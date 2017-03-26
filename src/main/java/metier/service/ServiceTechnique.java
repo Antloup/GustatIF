@@ -36,8 +36,8 @@ public class ServiceTechnique {
         email += "Client :" + e.getCommandeEnCours().getClient()+"\n";
         email += "Commande : \n";
         for(Map.Entry<Produit, Integer> commande : e.getCommandeEnCours().getListeProduit().entrySet()) {
-            System.out.println("Produit :"+commande.getKey());
-            System.out.println("Quantité :"+commande.getValue());
+            email +="Produit :"+commande.getKey();
+            email += "Quantité :"+commande.getValue();
         }
         System.out.println("Prix total : "+ServiceMetier.getPrixTot(e.getCommandeEnCours()));
         

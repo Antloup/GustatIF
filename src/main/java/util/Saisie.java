@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.persistence.OptimisticLockException;
 import metier.modele.Client;
 import metier.modele.Commande;
 import metier.modele.Drone;
@@ -259,16 +260,20 @@ public class Saisie {
                             System.out.println("Prix total : "+sm.getPrixTot(commande));
                             int confirm = Saisie.lireInteger("1 : Confirmer 2: Annuler :");
                             if(confirm == 1){
-                                sm.confirmCommande(commande);
-                                if(commande.getLivreur() instanceof Employe ){
-                                 System.out.println("Email recu par le livreur :");
-                                 System.out.println(ServiceTechnique.sendEmailCommande(commande.getLivreur()));
-                                System.out.println(" Un livreur est en route ");
+                                commande = sm.confirmCommande(commande);
+                                if(commande != null){
+                                    if(commande.getLivreur() instanceof Employe ){
+                                        System.out.println("Email recu par le livreur :");
+                                        System.out.println(ServiceTechnique.sendEmailCommande(commande.getLivreur()));
+                                        System.out.println(" Un livreur est en route ");
+                                   }
+                                   else{
+                                      System.out.println(" Un drone est en route pour votre commande");
+                                   }
                                 }
                                 else{
-                                   System.out.println(" Un drone est en route pour votre commande");
+                                    System.out.println("Votre commande a été annulée : Une erreur est survenue dans le systeme");
                                 }
-                                
                             }
                             else{
                                 sm.annuleCommande(commande);
@@ -364,7 +369,7 @@ public class Saisie {
                         for(int i=0;i<ll.size();i++){
                             if(ll.get(i) instanceof Employe){
                                 Employe e = (Employe)ll.get(i);
-                                System.out.println("Livreur : "+ e.getNom() + " "+e.getPrenom());
+                                System.out.println("Livreur : "+ e.getNom() + " "+e.getPrenom() + " "+e.getEmail());
                             }
                             else if(ll.get(i) instanceof Drone){
                                 Drone e = (Drone)ll.get(i);

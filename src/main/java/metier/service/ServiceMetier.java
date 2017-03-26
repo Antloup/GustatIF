@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.EntityManager;
+import javax.persistence.RollbackException;
 import metier.modele.Client;
 import metier.modele.Commande;
 import metier.modele.Drone;
@@ -265,7 +266,7 @@ public class ServiceMetier {
     /**
      * 
      * @param c : commande a confirmer : le livreur sera affecter a cette commande
-     * @return la commande confirmé
+     * @return la commande confirmé, null si erreur de lecture sale
      * @throws Exception si operation echoue
      */
     public Commande confirmCommande(Commande c) throws Exception {
@@ -275,8 +276,18 @@ public class ServiceMetier {
         cdao.setEtat(c, CommandeDAO.Etat.EN_COURS);
         LivreurDAO ldao = new LivreurDAO();
         ldao.setStatus(c.getLivreur(), 1);
-        JpaUtil.validerTransaction();
-        JpaUtil.fermerEntityManager();
+        try{
+            JpaUtil.validerTransaction();
+            JpaUtil.fermerEntityManager();
+        } catch(RollbackException e){
+            System.out.println("Erreur de lecture sale");
+            JpaUtil.creerEntityManager();
+            JpaUtil.ouvrirTransaction();
+            cdao.setEtat(c, CommandeDAO.Etat.ANNULE);
+            JpaUtil.validerTransaction();
+            JpaUtil.fermerEntityManager();
+            return null;
+        }
         return c;
     }
 
