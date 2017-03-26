@@ -19,6 +19,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 import util.GeoTest;
 
 /**
@@ -40,6 +41,9 @@ public abstract class Livreur implements Serializable {
     private int status;
     private Double longitude;
     private Double latitude;
+    
+    @Version
+    protected Long version;
 
     public int getStatus() {
         return status;

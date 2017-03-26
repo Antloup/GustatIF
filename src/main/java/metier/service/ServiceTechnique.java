@@ -22,46 +22,13 @@ import util.GeoTest;
  */
 public class ServiceTechnique {
     
-    /**
-     * 
-     * @param c : Client a livrer
-     * @param r : restaurant de la commande
-     * @param poids : Poids de la livraison
-     * @param duree_min : Double de valeur max. En sortie : valeur de la durée de la livraison
-     * @return null si aucuns livreurs disponible, sinon, le livreur le mieux positionné 
-     */
-    public static Livreur selectionnerLivreur(Client c, Restaurant r, double poids,double duree_min){
-        List<Livreur> ll = ServiceMetier.getAvailableLivreur();
-        LatLng d_latlng = new LatLng(c.getLatitude(), c.getLongitude());
-        Livreur selectLivreur = null;
-        for (int i = 0; i < ll.size(); i++) {
-            if (ll.get(i).getMax_transport() >= poids && ll.get(i).getStatus() == 0) { // Poids OK + Disponible
-                LatLng s_latlng = new LatLng(ll.get(i).getLatitude(), ll.get(i).getLongitude());
-                double duree = -1;
-                LatLng r_latlng = new LatLng(r.getLatitude(),r.getLongitude());
-                if (ll.get(i) instanceof Employe) {
-                    duree = GeoTest.getTripDurationByBicycleInMinute(s_latlng, r_latlng);
-                    duree += GeoTest.getTripDurationByBicycleInMinute(r_latlng, d_latlng);
-                } else if (ll.get(i) instanceof Drone) {
-                    Drone d = (Drone) ll.get(i);
-                    duree = (GeoTest.getFlightDistanceInKm(s_latlng, r_latlng) / d.getVitesse()) * 60;
-                    duree += (GeoTest.getFlightDistanceInKm(r_latlng, d_latlng) / d.getVitesse()) * 60;
-                }
-                if (duree != -1 && duree < duree_min) {
-                    duree_min = duree;
-                    selectLivreur = ll.get(i);
-                }
-            }
-        }
-        return selectLivreur;
-    }
     
     /**
      * 
      * @param l : livreur qui doit recevoir un mail pour être notifié de sa commande en cours
      * @return : String contenant l'email
      */
-    public static String sendEmail(Livreur l){
+    public static String sendEmailCommande(Livreur l){
         String email = "";
         Employe e = (Employe) l;
         email += "Bonjour "+ e.getPrenom() + " "+e.getNom()+"\n";
@@ -77,6 +44,7 @@ public class ServiceTechnique {
         return email;
         
     }
+    
     public static String sendConfirmInscription(Client c, boolean error){
         String email="";
         email = "Mail adressé à "+c.getMail()+" par Service@Gustatif.fr \n";
@@ -88,6 +56,6 @@ public class ServiceTechnique {
         
         }
     
-    return email;
+        return email;
     }
 }

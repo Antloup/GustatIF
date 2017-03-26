@@ -119,7 +119,6 @@ public class Saisie {
                     } else {
                         System.out.println("Erreur lors de l'inscription : Email déja utilisée ou Adresse inconnu");
                         System.out.println(sendConfirmInscription(c,true));
-
                     }
                     break;
                 case 2: // Se connecter client
@@ -261,14 +260,15 @@ public class Saisie {
                             int confirm = Saisie.lireInteger("1 : Confirmer 2: Annuler :");
                             if(confirm == 1){
                                 sm.confirmCommande(commande);
-                                
                                 if(commande.getLivreur() instanceof Employe ){
-                                System.out.println("Email recu par le livreur :");
-                                System.out.println(ServiceTechnique.sendEmail(commande.getLivreur()));
-                                System.out.println(" Un livreur est en route ");}
+                                 System.out.println("Email recu par le livreur :");
+                                 System.out.println(ServiceTechnique.sendEmailCommande(commande.getLivreur()));
+                                System.out.println(" Un livreur est en route ");
+                                }
                                 else{
                                    System.out.println(" Un drone est en route pour votre commande");
                                 }
+                                
                             }
                             else{
                                 sm.annuleCommande(commande);
@@ -319,17 +319,17 @@ public class Saisie {
                 }
                 case 2:
                 {
-                    Set<Commande> lc = livreur.getCommandes();
-                    Iterator<Commande> iter = lc.iterator();
-                    while (iter.hasNext()) {
-                        if(iter.next().getEtat() == CommandeDAO.Etat.EN_COURS.ordinal()){
-                            try {
-                                sm.termineCommande(iter.next());
-                                System.out.println("Commande validee");
-                            } catch (Exception ex) {
-                                Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                    Commande c = livreur.getCommandeEnCours();
+                    if(c !=null){
+                        try {
+                            sm.termineCommande(c);
+                        } catch (Exception ex) {
+                            Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                         }
+                        System.out.println("Commande validee");
+                    }
+                    else{
+                        System.out.println("Pas de commande en cours");
                     }
                     break;
                 }

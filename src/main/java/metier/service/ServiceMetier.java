@@ -72,13 +72,37 @@ public class ServiceMetier {
     public Commande submitCommande(HashMap<Produit, Integer> hm, Client c, Restaurant r) throws Exception {
         double poids = getPoids(hm);
         double duree_min = Double.MAX_VALUE;
-        Livreur selectLivreur = ServiceTechnique.selectionnerLivreur(c, r, poids, duree_min);
+        
+        //Affectation d'un livreur, calcule de la durée
+        List<Livreur> ll = ServiceMetier.getAvailableLivreur();
+        LatLng d_latlng = new LatLng(c.getLatitude(), c.getLongitude());
+        Livreur selectLivreur = null;
+        for (int i = 0; i < ll.size(); i++) {
+            if (ll.get(i).getMax_transport() >= poids && ll.get(i).getStatus() == 0) { // Poids OK + Disponible
+                LatLng s_latlng = new LatLng(ll.get(i).getLatitude(), ll.get(i).getLongitude());
+                double duree = -1;
+                LatLng r_latlng = new LatLng(r.getLatitude(),r.getLongitude());
+                if (ll.get(i) instanceof Employe) {
+                    duree = GeoTest.getTripDurationByBicycleInMinute(s_latlng, r_latlng);
+                    duree += GeoTest.getTripDurationByBicycleInMinute(r_latlng, d_latlng);
+                } else if (ll.get(i) instanceof Drone) {
+                    Drone d = (Drone) ll.get(i);
+                    duree = (GeoTest.getFlightDistanceInKm(s_latlng, r_latlng) / d.getVitesse()) * 60;
+                    duree += (GeoTest.getFlightDistanceInKm(r_latlng, d_latlng) / d.getVitesse()) * 60;
+                }
+                if (duree != -1 && duree < duree_min) {
+                    duree_min = duree;
+                    selectLivreur = ll.get(i);
+                }
+            }
+        }
+        //
         Commande commande = null;
         CommandeDAO cdao = new CommandeDAO();
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
         LivreurDAO ldao = new LivreurDAO();
-        commande = cdao.createCommande(hm, c, r, selectLivreur, 6);
+        commande = cdao.createCommande(hm, c, r, selectLivreur, duree_min);
         ldao.addCommande(commande, selectLivreur);
         if(selectLivreur == null){
             cdao.setEtat(commande, CommandeDAO.Etat.ANNULE);
@@ -248,13 +272,12 @@ public class ServiceMetier {
         CommandeDAO cdao = new CommandeDAO();
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
-        Commande commande = cdao.findById(c.getId());
         cdao.setEtat(c, CommandeDAO.Etat.EN_COURS);
         LivreurDAO ldao = new LivreurDAO();
         ldao.setStatus(c.getLivreur(), 1);
         JpaUtil.validerTransaction();
         JpaUtil.fermerEntityManager();
-        return commande;
+        return c;
     }
 
     /**
@@ -266,10 +289,9 @@ public class ServiceMetier {
         CommandeDAO cdao = new CommandeDAO();
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
-        Commande commande = cdao.findById(c.getId());
         LivreurDAO ldao = new LivreurDAO();
-        ldao.setStatus(commande.getLivreur(), 0);
-        ldao.removeCommande(commande); // A tester
+        ldao.setStatus(c.getLivreur(), 0);
+        ldao.removeCommande(c);
         cdao.setDateReception(c, new Date());
         cdao.setEtat(c, CommandeDAO.Etat.TERMINE);
         JpaUtil.validerTransaction();
@@ -332,18 +354,6 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
         return d;
     }
-    
-//    private Restaurant createResto( String denomination ,String description, String adresse){
-//       JpaUtil.creerEntityManager();
-//        JpaUtil.ouvrirTransaction();
-//        Restaurant r = new Restaurant(String denomination, String description, String adresse);
-//        RestaurantDAO rdao = new RestaurantDAO();
-//        Restaurant.createRestaurant(r);
-//        JpaUtil.validerTransaction();
-//        JpaUtil.fermerEntityManager();
-//    
-//    
-//    }
 
     /**
      * Initialise les données des livreurs
@@ -376,7 +386,7 @@ public class ServiceMetier {
                 "38 Rue Octavie, 69100 Villeurbanne" +"72 Rue René, 69100 Villeurbanne");
         for (int i = 0; i < 20; i++) {
             if (i % 5 == 0) {
-                createDrone("" + i, i+" Cours Emile Zola, Villeurbanne", 1000 * (i + 1) * (2.5));
+                //createDrone("" + i, i+" Cours Emile Zola, Villeurbanne", 1000 * (i + 1) * (2.5));
             } else {
                 createEmploye("EmployeNom" + i, "Prenom" + i, i + "@mail.fr", places.get(i), 1000 * (i + 1) * 3);
             }
