@@ -61,23 +61,6 @@ public abstract class Livreur implements Serializable {
         this.max_transport = max_transport;
     }
 
-    /**
-     *
-     * @return Duree totale des livraisons du livreurs
-     */
-    /*
-    public double getDuree() {
-        double duree = 0.0;
-        if (this.commandes != null) {
-            Iterator<Commande> iter = this.commandes.iterator();
-            while (iter.hasNext()) {
-                duree += iter.next().getDuree();
-            }
-        }
-        return duree;
-    }
-    */
-
     public String getAdresse() {
         return adresse;
     }

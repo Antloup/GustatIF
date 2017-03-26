@@ -37,8 +37,8 @@ public class ServiceMetier {
     /**
      *
      * @param adresse : Adresse Email du client
-     * @return Si l'email n'existe pas dans la base : return null Sinon : return
-     * l'objet Client
+     * @return Si l'email n'existe pas dans la base : return null 
+     * Sinon : return l'objet Client
      */
     public Client connectClient(String adresse) {
         ClientDAO cdao = new ClientDAO();
@@ -51,8 +51,8 @@ public class ServiceMetier {
     /**
      *
      * @param adresse : Adresse Email du livreur
-     * @return Si l'email n'existe pas dans la base : return null Sinon : return
-     * l'objet Livreur
+     * @return Si l'email n'existe pas dans la base : return null 
+     * Sinon : return l'objet Livreur
      */
     public Livreur connectLivreur(String adresse) {
         LivreurDAO ldao = new LivreurDAO();
@@ -66,8 +66,8 @@ public class ServiceMetier {
      * Créer la commande du client
      *
      * @param hm : HashMap : Produit / quantité de produit
-     * @param c : Objet Client
-     * @param r : Objet Restaurant
+     * @param c : Objet Client qui a commandé
+     * @param r : Objet Restaurant dans lequel la commande a été faite
      * @return La commande créer
      */
     public Commande submitCommande(HashMap<Produit, Integer> hm, Client c, Restaurant r) throws Exception {
@@ -131,10 +131,10 @@ public class ServiceMetier {
     }
 
     /**
-     * Permet d'inscrire un utilisateur et de controler si email disponible
+     * Permet d'inscrire un utilisateur et de controler si l'email est disponible
      *
-     * @return null si inscription échoue, le nouveau client si inscription est
-     * un succès
+     * @return null si inscription échoue
+     * Le nouveau client si inscription est un succès
      */
     public Client submitSubscription(String nom, String prenom, String mail, String adresse) throws Exception {
         ClientDAO cdao = new ClientDAO();
@@ -241,7 +241,7 @@ public class ServiceMetier {
      * @return : Objet Commande (null si aucune commande trouvé)
      * @throws Exception si operation echoue
      */
-    public Commande getCommande(long id) throws Exception {
+    public Commande getCommandeById(long id) throws Exception {
         JpaUtil.creerEntityManager();
         CommandeDAO cdao = new CommandeDAO();
         Commande c = cdao.findById(id);
@@ -255,7 +255,7 @@ public class ServiceMetier {
      * @return : Objet Restaurant (null si aucun resturant trouvé)
      * @throws Exception si operation echoue
      */
-    public Restaurant getRestaurant(long id) throws Exception {
+    public Restaurant getRestaurantById(long id) throws Exception {
         JpaUtil.creerEntityManager();
         RestaurantDAO rdao = new RestaurantDAO();
         Restaurant r = rdao.findById(id);
@@ -323,6 +323,11 @@ public class ServiceMetier {
         JpaUtil.fermerEntityManager();
     }
 
+    /**
+     * 
+     * @return La liste des commandes dont le status est “En cours”
+     * @throws Exception si l'operation echoue
+     */
     public List<Commande> getLivraisonsEnCours() throws Exception {
         JpaUtil.creerEntityManager();
         CommandeDAO cdao = new CommandeDAO();
@@ -333,17 +338,26 @@ public class ServiceMetier {
 
     /**
      * 
-     * @param lc : commande
+     * @param c : commande
      * @return le prix total de la commande
      */
-    public static double getPrixTot(Commande lc) {
+    public static double getPrixTot(Commande c) {
         double prix = 0.0;
-        for (Produit key : lc.getListeProduit().keySet()) {
-            prix += key.getPrix() * lc.getListeProduit().get(key);
+        for (Produit key : c.getListeProduit().keySet()) {
+            prix += key.getPrix() * c.getListeProduit().get(key);
         }
         return prix;
     }
 
+    /**
+     * Créer un employé (Utilisé dans init())
+     * @param nom : Nom de l'employé
+     * @param prenom : Prenom de l'employé
+     * @param email : Email de l'employé
+     * @param adresse : adresse postale de l'employé
+     * @param max_transport : Capacité maximum qu'il peut transporter
+     * @return L'employé créer
+     */
     private Employe createEmploye(String nom, String prenom, String email, String adresse, double max_transport) {
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
@@ -355,6 +369,13 @@ public class ServiceMetier {
         return e;
     }
 
+    /**
+     * 
+     * @param numero : Numero du drone
+     * @param adresse : Adresse (postale) du drone
+     * @param max_transport : Capacité maximum qu'il peut transporter 
+     * @return Le drone créer
+     */
     private Drone createDrone(String numero, String adresse, double max_transport) {
         JpaUtil.creerEntityManager();
         JpaUtil.ouvrirTransaction();
@@ -396,8 +417,8 @@ public class ServiceMetier {
                 "3 Rue Jean-Pierre Brédy, 69100 Villeurbanne"+"5 Rue Octavie, 69100 Villeurbanne",
                 "38 Rue Octavie, 69100 Villeurbanne" +"72 Rue René, 69100 Villeurbanne");
         for (int i = 0; i < 20; i++) {
-            if (i % 5 == 0) {
-                //createDrone("" + i, i+" Cours Emile Zola, Villeurbanne", 1000 * (i + 1) * (2.5));
+            if (i % 10 == 0) {
+                createDrone("" + i, i+" Cours Emile Zola, Villeurbanne", 1000 * (i + 1) * (2.5));
             } else {
                 createEmploye("EmployeNom" + i, "Prenom" + i, i + "@mail.fr", places.get(i), 1000 * (i + 1) * 3);
             }

@@ -24,7 +24,7 @@ public class ServiceTechnique {
     
     
     /**
-     * 
+     * Permet d’envoyer un mail au livreur détaillant sa commande en cours.
      * @param l : livreur qui doit recevoir un mail pour être notifié de sa commande en cours
      * @return : String contenant l'email
      */
@@ -36,15 +36,22 @@ public class ServiceTechnique {
         email += "Client :" + e.getCommandeEnCours().getClient()+"\n";
         email += "Commande : \n";
         for(Map.Entry<Produit, Integer> commande : e.getCommandeEnCours().getListeProduit().entrySet()) {
-            email +="Produit :"+commande.getKey();
-            email += "Quantité :"+commande.getValue();
+            email +="Produit : "+commande.getKey();
+            email += " Quantité : "+commande.getValue();
+            email += "\n";
         }
-        System.out.println("Prix total : "+ServiceMetier.getPrixTot(e.getCommandeEnCours()));
+        email +="\n Prix total : "+ServiceMetier.getPrixTot(e.getCommandeEnCours());
         
         return email;
         
     }
     
+    /**
+     * Permet d’envoyer un mail de confirmation d'inscription au client.
+     * @param c : Le client qui doit recevoir l’email
+     * @param error : True si l’inscription a échoué, false sinon
+     * @return La chaine de caractère contenant l’email à envoyer
+     */
     public static String sendConfirmInscription(Client c, boolean error){
         String email="";
         email = "Mail adressé à "+c.getMail()+" par Service@Gustatif.fr \n";

@@ -168,7 +168,7 @@ public class Saisie {
                     int c_id = Saisie.lireInteger("ID de la commande a terminer :");
 
                     try {
-                        Commande commande = sm.getCommande(c_id);
+                        Commande commande = sm.getCommandeById(c_id);
                         sm.termineCommande(commande);
                         
                     } catch (Exception ex) {
@@ -230,7 +230,7 @@ public class Saisie {
                     List<Produit> lp = null;
                     HashMap<Produit, Integer> hm = new HashMap<Produit, Integer>();
                     try {
-                        r = sm.getRestaurant(restoID);
+                        r = sm.getRestaurantById(restoID);
                         lp = r.getProduits();
 
                         for (int i = 0; i < lp.size(); i++) {
@@ -374,6 +374,7 @@ public class Saisie {
                             else if(ll.get(i) instanceof Drone){
                                 Drone e = (Drone)ll.get(i);
                                 System.out.println("Num livreur : "+ e.getNumero());
+                                System.out.println("ID drone : "+ e.getId());
                             }
                             System.out.println("Status :"+ll.get(i).getStatus());
                             if(ll.get(i).getCommandeEnCours() != null){
@@ -446,11 +447,11 @@ public class Saisie {
                     try {
                         Livreur drone = sm.getLivreurById(new Long(id_drone));
                         sm.termineCommande(drone.getCommandeEnCours());
+                        System.out.println("Commande validée");
                     } catch (Exception ex) {
                         Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                
-                    
+
                     break;
                 case 0:
                     break;
