@@ -8,6 +8,7 @@ package metier.modele;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,11 +31,12 @@ public class Commande implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private int etat;
+    private double duree;
     private HashMap<Produit,Integer> listeProduit;
     @Temporal(TemporalType.DATE)
     private Date dateCommande;
     @Temporal(TemporalType.DATE)
-    private Date duree;
+    private Date dateReception;
     @ManyToOne
     private Restaurant restaurant;
     @ManyToOne
@@ -45,18 +47,20 @@ public class Commande implements Serializable {
     public Commande() {
     }
 
-    public Commande(int etat, HashMap<Produit, Integer> listeProduit, Date dateCommande, Date duree, Restaurant restaurant, Livreur livreur, Client client) {
+    public Commande(int etat, HashMap<Produit, Integer> listeProduit, Date dateCommande, Double duree, Restaurant restaurant, Livreur livreur, Client client) {
         this.etat = etat;
         this.listeProduit = listeProduit;
         this.dateCommande = dateCommande;
+        this.dateReception = null;
         this.duree = duree;
         this.restaurant = restaurant;
         this.livreur = livreur;
         this.client = client;
     }
-    
-    
-    
+
+    public void setDateReception(Date dateReception) {
+        this.dateReception = dateReception;
+    }
 
     /**
      * Get the value of dateCommande
@@ -100,7 +104,7 @@ public class Commande implements Serializable {
      *
      * @return the value of duree
      */
-    public Date getDuree() {
+    public double getDuree() {
         return duree;
     }
 
@@ -109,7 +113,7 @@ public class Commande implements Serializable {
      *
      * @param duree new value of duree
      */
-    public void setDuree(Date duree) {
+    public void setDuree(double duree) {
         this.duree = duree;
     }
 
@@ -194,6 +198,19 @@ public class Commande implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+    
+    /**
+     *
+     * @return Poids totale d'une commande
+     */
+    public double getPoids() {
+        double poids = 0.0;
+        HashMap<Produit, Integer> hm = this.getListeProduit();
+        for (Produit key : hm.keySet()) {
+            poids += key.getPoids() * hm.get(key);
+        }
+        return poids;
     }
 
     @Override

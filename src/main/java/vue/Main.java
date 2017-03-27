@@ -27,19 +27,15 @@ public class Main {
         ClientDAO cdao = new ClientDAO();
         System.out.println(cdao.findByEmail("adresse@insa.com"));
         System.out.println(cdao.findByEmail("nolmeadamarais1551@gmail.com"));
-        if(cdao.isTaken("nolmeadamarais1551@gmail.com")){
+        if(cdao.isTaken("Adr@mail2.com")){
             System.out.println("Il faut utiliser une autre adresse email");
         }
         else{
             System.out.println("Adresse email valide");
         }
-        //List<Object> objectList = new ArrayList<Object>(cdao.findAll());
-        //afficherListe(objectList);
-        
-        //Resto
-        RestaurantDAO rdao = new RestaurantDAO();
-        List<Object> objectList = new ArrayList<Object>(rdao.getProduct(12));
+        List<Object> objectList = new ArrayList<Object>(cdao.findAll());
         afficherListe(objectList);
+        
         JpaUtil.validerTransaction();
         JpaUtil.destroy();
     }

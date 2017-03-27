@@ -21,13 +21,20 @@ public class Drone extends Livreur implements Serializable {
     private static final long serialVersionUID = 1L;
     
     private String numero;
+    
+    private final float vitesse = (float) 20.0;
 
     public Drone() {
     }
     
 
-    public Drone(String numero) {
+    public Drone(String numero,String adresse,double max_transport) {
+        super(null, adresse, max_transport, 0);
         this.numero = numero;
+    }
+
+    public float getVitesse() {
+        return vitesse;
     }
     
     
