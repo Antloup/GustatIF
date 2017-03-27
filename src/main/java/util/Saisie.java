@@ -86,7 +86,7 @@ public class Saisie {
         Integer action = -1;
         ServiceMetier sm = new ServiceMetier();
         try {
-            if(sm.getLivreurList().isEmpty()){
+            if (sm.getLivreurList().isEmpty()) {
                 sm.init();
             }
         } catch (Exception ex) {
@@ -116,10 +116,10 @@ public class Saisie {
                     if (c != null) {
                         System.out.println("Vous etes inscrit ! Objet Client créer :");
                         System.out.println(c.toString());
-                        System.out.println(sendConfirmInscription(c,false));
+                        System.out.println(sendConfirmInscription(c, false));
                     } else {
                         System.out.println("Erreur lors de l'inscription : Email déja utilisée ou Adresse inconnu");
-                        System.out.println(sendConfirmInscription(c,true));
+                        System.out.println(sendConfirmInscription(c, true));
                     }
                     break;
                 case 2: // Se connecter client
@@ -147,38 +147,8 @@ public class Saisie {
                 case 4:
                     menuGestionnaire();
                     break;
-                    /*
-                case 8:
-                    try {
-                        List<Commande> lc = sm.getLivraisonsEnCours();
-                        if (lc != null) {
-                            System.out.println("Commande en cours :");
-                            for (int i = 0; i < lc.size(); i++) {
-                                System.out.println(lc.get(i));
-                            }
-                        }
-                        
-                    } catch (Exception ex) {
-                        Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                    break;
-
-                case 9:
-                    int c_id = Saisie.lireInteger("ID de la commande a terminer :");
-
-                    try {
-                        Commande commande = sm.getCommandeById(c_id);
-                        sm.termineCommande(commande);
-                        
-                    } catch (Exception ex) {
-                        Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                    break;
-*/
                 default:
-                    System.out.println("Wat ?");
+                    System.out.println("...");
             }
         }
 
@@ -193,21 +163,21 @@ public class Saisie {
         System.out.println("4 : Se connecter en tant que gestionnaire");
         System.out.println("0 : Quitter");
     }
-    
-    public static void afficherMenuCommande(){
+
+    public static void afficherMenuCommande() {
         System.out.println("--- MENU COMMANDE ---");
         System.out.println("1 : Voir les restaurants");
         System.out.println("2 : Commander : (Voir produits restaurant par ID)");
         System.out.println("0 : Quitter");
     }
-    
-   public static void menuCommande(Client client){
+
+    public static void menuCommande(Client client) {
         ServiceMetier sm = new ServiceMetier();
         Integer action = -1;
         while (action != 0) {
             afficherMenuCommande();
             action = Saisie.lireInteger("Votre choix : ", Arrays.asList(0, 1, 2));
-            switch(action){
+            switch (action) {
                 case 1:
                     try {
 
@@ -223,7 +193,7 @@ public class Saisie {
                         Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
-                    
+
                 case 2:
                     int restoID = Saisie.lireInteger("ID du resto : ");
                     Restaurant r = null;
@@ -250,32 +220,29 @@ public class Saisie {
                         if (commande != null) {
                             System.out.println("Commande accepté");
                             System.out.println("Resumé :");
-                            System.out.println("Livreur : "+ commande.getLivreur());
-                            System.out.println("Durée : "+commande.getDuree());
+                            System.out.println("Livreur : " + commande.getLivreur());
+                            System.out.println("Durée : " + commande.getDuree());
                             System.out.println("Details commande :");
-                            for(Entry<Produit, Integer> e : commande.getListeProduit().entrySet()) {
-                                System.out.println("Produit :"+e.getKey());
-                                System.out.println("Quantité :"+e.getValue());
+                            for (Entry<Produit, Integer> e : commande.getListeProduit().entrySet()) {
+                                System.out.println("Produit :" + e.getKey());
+                                System.out.println("Quantité :" + e.getValue());
                             }
-                            System.out.println("Prix total : "+sm.getPrixTot(commande));
+                            System.out.println("Prix total : " + sm.getPrixTot(commande));
                             int confirm = Saisie.lireInteger("1 : Confirmer 2: Annuler :");
-                            if(confirm == 1){
+                            if (confirm == 1) {
                                 commande = sm.confirmCommande(commande);
-                                if(commande != null){
-                                    if(commande.getLivreur() instanceof Employe ){
+                                if (commande != null) {
+                                    if (commande.getLivreur() instanceof Employe) {
                                         System.out.println("Email recu par le livreur :");
                                         System.out.println(ServiceTechnique.sendEmailCommande(commande.getLivreur()));
                                         System.out.println(" Un livreur est en route ");
-                                   }
-                                   else{
-                                      System.out.println(" Un drone est en route pour votre commande");
-                                   }
-                                }
-                                else{
+                                    } else {
+                                        System.out.println(" Un drone est en route pour votre commande");
+                                    }
+                                } else {
                                     System.out.println("Votre commande a été annulée : Une erreur est survenue dans le systeme");
                                 }
-                            }
-                            else{
+                            } else {
                                 sm.annuleCommande(commande);
                             }
                         } else {
@@ -286,54 +253,51 @@ public class Saisie {
                         Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
-                
+
                 case 0:
-                   break;
+                    break;
             }
-           
+
         }
-   }
-   
-   public static void afficherMenuLivreur(){
-       System.out.println("--- MENU LIVREUR ---");
-       System.out.println("1 : Voir la commande en cours");
-       System.out.println("2 : Valider la commande en cours");
-       System.out.println("0 : Quitter");
-   }
-   public static void menuLivreur(Livreur livreur){
+    }
+
+    public static void afficherMenuLivreur() {
+        System.out.println("--- MENU LIVREUR ---");
+        System.out.println("1 : Voir la commande en cours");
+        System.out.println("2 : Valider la commande en cours");
+        System.out.println("0 : Quitter");
+    }
+
+    public static void menuLivreur(Livreur livreur) {
         ServiceMetier sm = new ServiceMetier();
         Integer action = -1;
         while (action != 0) {
             afficherMenuLivreur();
             action = Saisie.lireInteger("Votre choix : ", Arrays.asList(0, 1, 2));
-            
-            switch(action){
-                case 1:
-                {
+
+            switch (action) {
+                case 1: {
                     Commande commande = livreur.getCommandeEnCours();
-                    if(commande != null){
+                    if (commande != null) {
                         System.out.println(commande);
-                        System.out.println("Prix tot : "+sm.getPrixTot(commande));
+                        System.out.println("Prix tot : " + sm.getPrixTot(commande));
                         System.out.println("Client : " + commande.getClient());
-                    }
-                    else{
+                    } else {
                         System.out.println("Pas de commande en cours");
                     }
-                    
+
                     break;
                 }
-                case 2:
-                {
+                case 2: {
                     Commande c = livreur.getCommandeEnCours();
-                    if(c !=null){
+                    if (c != null) {
                         try {
                             sm.termineCommande(c);
                         } catch (Exception ex) {
                             Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         System.out.println("Commande validee");
-                    }
-                    else{
+                    } else {
                         System.out.println("Pas de commande en cours");
                     }
                     break;
@@ -342,44 +306,43 @@ public class Saisie {
                     break;
             }
         }
-       
-   }
-   
-   public static void afficherMenuGestionnaire(){
-       System.out.println("--- MENU GESTIONNAIRE ---");
-       System.out.println("1 : Voir la liste des livreurs + leurs commandes en cours");
-       System.out.println("2 : Coordonnees des clients,livreurs,restaurant");
-       System.out.println("3 : Voir commande drone");
-       System.out.println("4 : Valider commande drone");
-       System.out.println("0 : Quitter");
-   }
-   
-   public static void menuGestionnaire(){
-       ServiceMetier sm = new ServiceMetier();
+
+    }
+
+    public static void afficherMenuGestionnaire() {
+        System.out.println("--- MENU GESTIONNAIRE ---");
+        System.out.println("1 : Voir la liste des livreurs + leurs commandes en cours");
+        System.out.println("2 : Coordonnees des clients,livreurs,restaurant");
+        System.out.println("3 : Voir commande drone");
+        System.out.println("4 : Valider commande drone");
+        System.out.println("0 : Quitter");
+    }
+
+    public static void menuGestionnaire() {
+        ServiceMetier sm = new ServiceMetier();
         Integer action = -1;
         while (action != 0) {
             afficherMenuGestionnaire();
-            action = Saisie.lireInteger("Votre choix : ", Arrays.asList(0, 1, 2,3,4));
-            
-            switch(action){
+            action = Saisie.lireInteger("Votre choix : ", Arrays.asList(0, 1, 2, 3, 4));
+
+            switch (action) {
                 case 1:
                     List<Livreur> ll = null;
                     try {
                         ll = sm.getLivreurList();
-                        for(int i=0;i<ll.size();i++){
-                            if(ll.get(i) instanceof Employe){
-                                Employe e = (Employe)ll.get(i);
-                                System.out.println("Livreur : "+ e.getNom() + " "+e.getPrenom() + " "+e.getEmail());
+                        for (int i = 0; i < ll.size(); i++) {
+                            if (ll.get(i) instanceof Employe) {
+                                Employe e = (Employe) ll.get(i);
+                                System.out.println("Livreur : " + e.getNom() + " " + e.getPrenom() + " " + e.getEmail());
+                            } else if (ll.get(i) instanceof Drone) {
+                                Drone e = (Drone) ll.get(i);
+                                System.out.println("Num livreur : " + e.getNumero());
+                                System.out.println("ID drone : " + e.getId());
                             }
-                            else if(ll.get(i) instanceof Drone){
-                                Drone e = (Drone)ll.get(i);
-                                System.out.println("Num livreur : "+ e.getNumero());
-                                System.out.println("ID drone : "+ e.getId());
-                            }
-                            System.out.println("Status :"+ll.get(i).getStatus());
-                            if(ll.get(i).getCommandeEnCours() != null){
-                                System.out.println("Commande en cours : "+ll.get(i).getCommandeEnCours());
-                                System.out.println("Client : "+ll.get(i).getCommandeEnCours().getClient());
+                            System.out.println("Status :" + ll.get(i).getStatus());
+                            if (ll.get(i).getCommandeEnCours() != null) {
+                                System.out.println("Commande en cours : " + ll.get(i).getCommandeEnCours());
+                                System.out.println("Client : " + ll.get(i).getCommandeEnCours().getClient());
                             }
                         }
                     } catch (Exception ex) {
@@ -388,54 +351,54 @@ public class Saisie {
                     break;
                 case 2:
                     System.out.println("Coordonnées client : ");
-                    
+
                     try {
                         List<Client> lc = sm.getClientsList();
-                        for(int i =0;i<lc.size();i++){
-                            System.out.println(lc.get(i).getNom() + " "+ lc.get(i).getPrenom());
-                            System.out.println("Latitude : "+lc.get(i).getLatitude());
-                            System.out.println("Longitude : "+lc.get(i).getLongitude());
+                        for (int i = 0; i < lc.size(); i++) {
+                            System.out.println(lc.get(i).getNom() + " " + lc.get(i).getPrenom());
+                            System.out.println("Latitude : " + lc.get(i).getLatitude());
+                            System.out.println("Longitude : " + lc.get(i).getLongitude());
                         }
                     } catch (Exception ex) {
                         Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    
+
                     System.out.println("Coordonnées Livreur : ");
-                    
+
                     try {
                         List<Livreur> livreurlist = sm.getLivreurList();
-                        for(int i =0;i<livreurlist.size();i++){
+                        for (int i = 0; i < livreurlist.size(); i++) {
                             System.out.println(livreurlist.get(i).getId());
-                            System.out.println("Latitude : "+livreurlist.get(i).getLatitude());
-                            System.out.println("Longitude : "+livreurlist.get(i).getLongitude());
+                            System.out.println("Latitude : " + livreurlist.get(i).getLatitude());
+                            System.out.println("Longitude : " + livreurlist.get(i).getLongitude());
                         }
                     } catch (Exception ex) {
                         Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    
+
                     System.out.println("Coordonnées Restaurant : ");
-                    
+
                     try {
                         List<Restaurant> lr = sm.getRestaurantsList();
-                        for(int i =0;i<lr.size();i++){
+                        for (int i = 0; i < lr.size(); i++) {
                             System.out.println(lr.get(i).getId());
-                            System.out.println("Latitude : "+lr.get(i).getLatitude());
-                            System.out.println("Longitude : "+lr.get(i).getLongitude());
+                            System.out.println("Latitude : " + lr.get(i).getLatitude());
+                            System.out.println("Longitude : " + lr.get(i).getLongitude());
                         }
                     } catch (Exception ex) {
                         Logger.getLogger(Saisie.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    
+
                     break;
                 case 3:
                     List<Livreur> ld = null;
                     try {
                         ld = sm.getLivreurList();
-                        for(int i=0;i<ld.size();i++){
-                            if(ld.get(i) instanceof Drone && ld.get(i).getCommandeEnCours() != null){
-                                System.out.println("Livreur : "+ ld.get(i));
-                                System.out.println("Commande en cours : "+ld.get(i).getCommandeEnCours());
-                                System.out.println("Client : "+ld.get(i).getCommandeEnCours().getClient());
+                        for (int i = 0; i < ld.size(); i++) {
+                            if (ld.get(i) instanceof Drone && ld.get(i).getCommandeEnCours() != null) {
+                                System.out.println("Livreur : " + ld.get(i));
+                                System.out.println("Commande en cours : " + ld.get(i).getCommandeEnCours());
+                                System.out.println("Client : " + ld.get(i).getCommandeEnCours().getClient());
                             }
                         }
                     } catch (Exception ex) {
@@ -457,5 +420,5 @@ public class Saisie {
                     break;
             }
         }
-   }
+    }
 }

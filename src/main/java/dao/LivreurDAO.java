@@ -64,24 +64,21 @@ public class LivreurDAO {
 
         return livreurs;
     }
-    
-    public Livreur findByEmail(String adresse){
+
+    public Livreur findByEmail(String adresse) {
         EntityManager em = JpaUtil.obtenirEntityManager();
-        
+
         Employe employe = null;
         try {
             Query q = em.createQuery("SELECT e FROM Employe e WHERE e.email = :mail");
             q.setParameter("mail", adresse);
             employe = (Employe) q.getSingleResult();
-        }
-        catch(Exception e) {
-            if(e instanceof NullPointerException){
+        } catch (Exception e) {
+            if (e instanceof NullPointerException) {
                 return null;
-            }
-            else if(e instanceof NoResultException){
+            } else if (e instanceof NoResultException) {
                 return null;
-            }
-            else{
+            } else {
                 throw e;
             }
         }
@@ -104,8 +101,8 @@ public class LivreurDAO {
         EntityManager em = JpaUtil.obtenirEntityManager();
         em.persist(d);
     }
-    
-    public void addCommande(Commande c, Livreur l){
+
+    public void addCommande(Commande c, Livreur l) {
         EntityManager em = JpaUtil.obtenirEntityManager();
         l.getCommandes().add(c);
         em.merge(l);

@@ -7,32 +7,29 @@ import metier.modele.Produit;
 import metier.modele.Restaurant;
 
 public class ProduitDAO {
-    
+
     public Produit findById(long id) throws Exception {
         EntityManager em = JpaUtil.obtenirEntityManager();
         Produit produit = null;
         try {
             produit = em.find(Produit.class, id);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             throw e;
         }
         return produit;
     }
-    
+
     public List<Produit> findAll() throws Exception {
         EntityManager em = JpaUtil.obtenirEntityManager();
         List<Produit> produits = null;
         try {
             Query q = em.createQuery("SELECT p FROM Produit p");
             produits = (List<Produit>) q.getResultList();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             throw e;
         }
-        
+
         return produits;
     }
-   
-    
+
 }
